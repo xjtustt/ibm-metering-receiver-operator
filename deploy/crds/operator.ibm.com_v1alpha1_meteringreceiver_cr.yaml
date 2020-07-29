@@ -1,7 +1,11 @@
 apiVersion: operator.ibm.com/v1alpha1
 kind: MeteringReceiver
 metadata:
-  name: example-meteringreceiver
+  name: meteringreceiver
+  labels:
+    app.kubernetes.io/instance: "ibm-metering-receiver-operator"
+    app.kubernetes.io/managed-by: "ibm-metering-receiver-operator"
+    app.kubernetes.io/name: "ibm-metering"
 spec:
   version: "3.7.0"
   imageRegistry: quay.io/opencloudio

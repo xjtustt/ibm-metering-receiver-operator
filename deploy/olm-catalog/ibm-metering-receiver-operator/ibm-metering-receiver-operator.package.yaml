@@ -1,0 +1,5 @@
+channels:
+- currentCSV: ibm-metering-receiver-operator.v3.7.0
+  name: dev
+defaultChannel: dev
+packageName: ibm-metering-receiver-operator-app

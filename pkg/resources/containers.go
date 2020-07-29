@@ -48,7 +48,7 @@ const DefaultClusterIssuer = "cs-ca-clusterissuer"
 const DefaultReceiverImageTag = "3.6.0"
 
 // define the env vars that contain either the SHA or the tag
-const VarImageSHAforReceiver = "IMAGE_SHA_OR_TAG_RECEIVER"
+const VarImageSHAforReceiver = "IMAGE_SHA_OR_TAG_DM"
 
 // use concatenation so linter won't complain about "Secret" vars
 const DefaultAPIKeySecretName = "icp-serviceid-apikey-secret" + ""
@@ -59,11 +59,11 @@ var FalseVar = false
 var Replica1 int32 = 1
 var Seconds60 int64 = 60
 
-var cpu100 = resource.NewMilliQuantity(100, resource.DecimalSI)          // 100m
-var cpu1000 = resource.NewMilliQuantity(1000, resource.DecimalSI)        // 1000m
-var memory100 = resource.NewQuantity(100*1024*1024, resource.BinarySI)   // 100Mi
-var memory256 = resource.NewQuantity(256*1024*1024, resource.BinarySI)   // 256Mi
-var memory2560 = resource.NewQuantity(2560*1024*1024, resource.BinarySI) // 2560Mi
+var cpu100 = resource.NewMilliQuantity(100, resource.DecimalSI)        // 100m
+var cpu500 = resource.NewMilliQuantity(500, resource.DecimalSI)        // 500m
+var memory100 = resource.NewQuantity(100*1024*1024, resource.BinarySI) // 128Mi
+var memory128 = resource.NewQuantity(128*1024*1024, resource.BinarySI) // 128Mi
+var memory512 = resource.NewQuantity(512*1024*1024, resource.BinarySI) // 512Mi
 
 const DefaultClusterName = "mycluster"
 
@@ -227,7 +227,7 @@ var ReceiverMainContainer = corev1.Container{
 		LoglevelVolumeMount,
 	},
 	// CommonEnvVars, IAMEnvVars and mongoDBEnvVars will be added by the controller.
-	// HC_DM_MCM_RECEIVER_ENABLED will be set by BuildReceiverEnvVars().
+	// HC_DM_MCM_RECEIVER_ENABLED will be set by meteringreceiver_controller.
 	// Removed ICP_API_KEY.
 	Env: []corev1.EnvVar{
 		{
@@ -307,11 +307,11 @@ var ReceiverMainContainer = corev1.Container{
 	},
 	Resources: corev1.ResourceRequirements{
 		Limits: map[corev1.ResourceName]resource.Quantity{
-			corev1.ResourceCPU:    *cpu1000,
-			corev1.ResourceMemory: *memory2560},
+			corev1.ResourceCPU:    *cpu500,
+			corev1.ResourceMemory: *memory512},
 		Requests: map[corev1.ResourceName]resource.Quantity{
 			corev1.ResourceCPU:    *cpu100,
-			corev1.ResourceMemory: *memory256},
+			corev1.ResourceMemory: *memory128},
 	},
 	SecurityContext: &commonSecurityContext,
 }

@@ -26,9 +26,7 @@ import (
 	certmgr "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha1"
 
 	corev1 "k8s.io/api/core/v1"
-	netv1 "k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
@@ -114,49 +112,6 @@ func BuildCertificate(instanceNamespace, instanceClusterIssuer string, certData 
 		},
 	}
 	return certificate
-}
-
-// BuildIngress returns an Ingress object.
-// Call controllerutil.SetControllerReference to set the owner and controller
-// for the Ingress object created by this function.
-func BuildIngress(namespace string, ingressData IngressData) *netv1.Ingress {
-	metaLabels := labelsForIngressMeta(ingressData.Name)
-	newAnnotations := ingressData.Annotations
-	for key, value := range CommonIngressAnnotations {
-		newAnnotations[key] = value
-	}
-
-	ingress := &netv1.Ingress{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        ingressData.Name,
-			Annotations: newAnnotations,
-			Labels:      metaLabels,
-			Namespace:   namespace,
-		},
-		Spec: netv1.IngressSpec{
-			Rules: []netv1.IngressRule{
-				{
-					IngressRuleValue: netv1.IngressRuleValue{
-						HTTP: &netv1.HTTPIngressRuleValue{
-							Paths: []netv1.HTTPIngressPath{
-								{
-									Path: ingressData.Path,
-									Backend: netv1.IngressBackend{
-										ServiceName: ingressData.Service,
-										ServicePort: intstr.IntOrString{
-											Type:   intstr.Int,
-											IntVal: ingressData.Port,
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-	return ingress
 }
 
 // checkerCommand is the command to be executed by the secret-check container.
@@ -384,12 +339,6 @@ func LabelsForPodMetadata(deploymentName string, crType string, crName string) m
 		podLabels[key] = value
 	}
 	return podLabels
-}
-
-// returns the labels associated with the Ingress being created
-func labelsForIngressMeta(ingressName string) map[string]string {
-	return map[string]string{"app.kubernetes.io/name": ingressName, "app.kubernetes.io/instance": MeteringReleaseName,
-		"app.kubernetes.io/managed-by": "operator", "release": MeteringReleaseName}
 }
 
 func labelsForCertificateMeta(appName, componentName string) map[string]string {

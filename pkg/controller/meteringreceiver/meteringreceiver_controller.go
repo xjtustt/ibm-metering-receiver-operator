@@ -26,7 +26,6 @@ import (
 	certmgr "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	netv1 "k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -91,7 +90,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
-	// Watch for changes to secondary resource "Service" and requeue the owner Metering
+	// Watch for changes to secondary resource "Service" and requeue the owner MeteringReceiver
 	err = c.Watch(&source.Kind{Type: &corev1.Service{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &operatorv1alpha1.MeteringReceiver{},
@@ -100,16 +99,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
-	// Watch for changes to secondary resource "Ingress" and requeue the owner Metering
-	err = c.Watch(&source.Kind{Type: &netv1.Ingress{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &operatorv1alpha1.MeteringReceiver{},
-	})
-	if err != nil {
-		return err
-	}
-
-	// Watch for changes to secondary resource "Certificate" and requeue the owner Metering
+	// Watch for changes to secondary resource "Certificate" and requeue the owner MeteringReceiver
 	err = c.Watch(&source.Kind{Type: &certmgr.Certificate{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &operatorv1alpha1.MeteringReceiver{},
@@ -221,16 +211,6 @@ func (r *ReconcileMeteringReceiver) Reconcile(request reconcile.Request) (reconc
 	reqLogger.Info("Updating MeteringReceiver status")
 	// Update the MeteringReceiver status with the pod names.
 	// List the pods for this instance's Deployments
-	podList := &corev1.PodList{}
-	listOpts := []client.ListOption{
-		client.InNamespace(instance.Namespace),
-		client.MatchingLabels(res.LabelsForSelector(res.ReceiverDeploymentName, meteringReceiverCrType, instance.Name)),
-	}
-	if err = r.client.List(context.TODO(), podList, listOpts...); err != nil {
-		reqLogger.Error(err, "Failed to list pods", "MeteringReceiver.Namespace", instance.Namespace,
-			"MeteringReceiver.Name", res.ReceiverDeploymentName)
-		return reconcile.Result{}, err
-	}
 
 	podNames, err := r.getAllPodNames(instance)
 	if err != nil {
