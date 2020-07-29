@@ -1,0 +1,16 @@
+apiVersion: operator.ibm.com/v1alpha1
+kind: MeteringReceiver
+metadata:
+  name: example-meteringreceiver
+spec:
+  version: "3.7.0"
+  imageRegistry: quay.io/opencloudio
+  mongodb:
+    host: mongodb
+    port: 27017
+    usernameSecret: icp-mongodb-admin
+    usernameKey: user
+    passwordSecret: icp-mongodb-admin
+    passwordKey: password
+    clustercertssecret: mongodb-root-ca-cert
+    clientcertssecret: icp-mongodb-client-cert
