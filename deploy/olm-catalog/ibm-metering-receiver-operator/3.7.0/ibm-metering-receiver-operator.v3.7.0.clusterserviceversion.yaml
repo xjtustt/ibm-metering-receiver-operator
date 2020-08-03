@@ -9,7 +9,12 @@ metadata:
           "apiVersion": "operator.ibm.com/v1alpha1",
           "kind": "MeteringReceiver",
           "metadata": {
-            "name": "example-meteringreceiver"
+            "labels": {
+              "app.kubernetes.io/instance": "ibm-metering-receiver-operator",
+              "app.kubernetes.io/managed-by": "ibm-metering-receiver-operator",
+              "app.kubernetes.io/name": "ibm-metering"
+            },
+            "name": "meteringreceiver"
           },
           "spec": {
             "imageRegistry": "quay.io/opencloudio",
@@ -38,7 +43,7 @@ metadata:
     repository: https://github.com/IBM/ibm-metering-receiver-operator
     support: IBM
   name: ibm-metering-receiver-operator.v3.7.0
-  namespace: placeholder
+  namespace: ibm-common-services
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
@@ -104,6 +109,15 @@ spec:
     mediatype: image/png
   install:
     spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - certmanager.k8s.io
+          resources:
+          - clusterissuers
+          verbs:
+          - use
+        serviceAccountName: ibm-metering-receiver-operator
       deployments:
       - name: ibm-metering-receiver-operator
         spec:
@@ -243,6 +257,33 @@ spec:
           - operator.ibm.com
           resources:
           - '*'
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - certmanager.k8s.io
+          resources:
+          - '*'
+          - certificates
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - networking.k8s.io
+          - extensions
+          resources:
+          - '*'
+          - ingresses
           verbs:
           - create
           - delete
